@@ -1,7 +1,7 @@
 -- local _syncedPtfx = {}
 
 -- AddStateBagChangeHandler('animPtfx', nil, function(bagName, key, value, _unused, replicated)
---     if not LocalPlayer.state.loggedIn then return; end
+--     if not plsr.State.flags.loggedIn then return; end
 
 --     local pSrc, count = bagName:gsub('player:', '')
 --     if count > 0 then
@@ -49,7 +49,7 @@
 -- end
 
 -- RegisterNetEvent('Scopes:Client:PlayerLeftScope', function(player)
---     if not LocalPlayer.state.loggedIn then return; end
+--     if not plsr.State.flags.loggedIn then return; end
 
 --     player = tonumber(player)
 
@@ -62,7 +62,7 @@
 -- end)
 
 -- RegisterNetEvent('Scopes:Client:PlayerEnterScope', function(player)
---     if not LocalPlayer.state.loggedIn then return; end
+--     if not plsr.State.flags.loggedIn then return; end
 
 --     Wait(100)
 --     player = tonumber(player)

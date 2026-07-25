@@ -1,34 +1,37 @@
-fx_version("cerulean")
+fx_version 'cerulean'
 games({ "gta5" })
-lua54("yes")
 
-version '1.0.2'
-repository 'https://www.github.com/PularFW/pulsar-animations'
+name 'Pulsar Animations'
+description 'Emotes, shared/synced animations, ped props, and PTFX sync'
+author 'Artmines - maintained for Pulsar Framework'
+url 'https://pulsarframe.work'
+version 'v1.0.0'
 
-client_script("@pulsar-core/exports/cl_error.lua")
-client_script("@pulsar-pwnzor/client/check.lua")
+client_script '@pulsar_core/components/cl_error.lua'
+shared_script '@pulsar_core/core/sh_pulsar.lua'
+client_script '@pulsar_pwnzor/client/check.lua'
 
 client_scripts({
-  "config/*.lua",
-  "client/utils.lua",
-  "client/main.lua",
-  "client/menu.lua",
-  "client/bindings.lua",
-  "client/emotes.lua",
-  "client/ptfxsync.lua",
-  "client/pedfeatures.lua",
-  "client/sharedemotes.lua",
-  "client/pointing.lua",
-  "client/items.lua",
-  "client/chairs.lua",
-  "client/selfie.lua",
+	"shared/**/*.lua",
+	"config/*.lua",
+	"client/utils.lua",
+	"client/main.lua",
+	"client/menu.lua",
+	"client/bindings.lua",
+	"client/emotes.lua",
+	"client/ptfxsync.lua",
+	"client/pedfeatures.lua",
+	"client/sharedemotes.lua",
+	"client/pointing.lua",
+	"client/items.lua",
+	"client/chairs.lua",
+	"client/selfie.lua",
 })
 
 server_scripts({
-  "config/*.lua",
-  "server/*.lua",
+	"shared/**/*.lua",
+	"config/*.lua",
+	"server/*.lua",
 })
 
-shared_scripts({
-  "shared/**/*.lua",
-})
+lua54 'yes'

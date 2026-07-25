@@ -1,23 +1,23 @@
 RegisterNetEvent("Animations:Client:CampChair", function()
-	if LocalPlayer.state.loggedIn then
-		local inAnim = exports['pulsar-animations']:EmotesGet()
-		if inAnim and inAnim == "campchair" then
-			exports['pulsar-animations']:EmotesCancel()
-		elseif not inAnim then
-			exports['pulsar-animations']:EmotesPlay("campchair", false, false, false)
-		end
-	end
+	-- if plsr.State.flags.loggedIn then
+	-- 	local inAnim = plsr.Animations.Emotes:Get()
+	-- 	if inAnim and inAnim == "campchair" then
+	-- 		plsr.Animations.Emotes:Cancel()
+	-- 	elseif not inAnim then
+	-- 		plsr.Animations.Emotes:Play("campchair", false, false, false)
+	-- 	end
+	-- end
 end)
 
 RegisterNetEvent("Animations:Client:BeanBag", function()
-	if LocalPlayer.state.loggedIn then
-		local inAnim = exports['pulsar-animations']:EmotesGet()
-		if inAnim and inAnim == "beanbag" then
-			exports['pulsar-animations']:EmotesCancel()
-		elseif not inAnim then
-			exports['pulsar-animations']:EmotesPlay("beanbag", false, false, false)
-		end
-	end
+	-- if plsr.State.flags.loggedIn then
+	-- 	local inAnim = plsr.Animations.Emotes:Get()
+	-- 	if inAnim and inAnim == "beanbag" then
+	-- 		plsr.Animations.Emotes:Cancel()
+	-- 	elseif not inAnim then
+	-- 		plsr.Animations.Emotes:Play("beanbag", false, false, false)
+	-- 	end
+	-- end
 end)
 
 local binocularConfig = {
@@ -31,13 +31,13 @@ local binocularConfig = {
 binocularConfig.fov = (binocularConfig.fovMax + binocularConfig.fovMin) * 0.5
 
 RegisterNetEvent("Animations:Client:Binoculars", function()
-	if LocalPlayer.state.loggedIn then
-		local inAnim = exports['pulsar-animations']:EmotesGet()
+	if plsr.State.flags.loggedIn then
+		local inAnim = plsr.Animations.Emotes:Get()
 		if inAnim and inAnim == "binoculars" then
-			exports['pulsar-animations']:EmotesCancel()
-		elseif not inAnim and not IsPedInAnyVehicle(LocalPlayer.state.ped, true) then
-			exports['pulsar-animations']:EmotesPlay("binoculars", false, false, false)
-			exports['pulsar-hud']:Hide()
+			plsr.Animations.Emotes:Cancel()
+		elseif not inAnim and not IsPedInAnyVehicle(PlayerPedId(), true) then
+			plsr.Animations.Emotes:Play("binoculars", false, false, false)
+			plsr.Hud:Hide()
 
 			CreateThread(function()
 				SetTimecycleModifier("default")
@@ -52,15 +52,15 @@ RegisterNetEvent("Animations:Client:Binoculars", function()
 				binocularConfig.fov = (binocularConfig.fovMax + binocularConfig.fovMin) * 0.5
 
 				local cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true)
-				AttachCamToEntity(cam, LocalPlayer.state.ped, 0.0, 0.0, 1.0, true)
-				SetCamRot(cam, 0.0, 0.0, GetEntityHeading(LocalPlayer.state.ped))
+				AttachCamToEntity(cam, PlayerPedId(), 0.0, 0.0, 1.0, true)
+				SetCamRot(cam, 0.0, 0.0, GetEntityHeading(PlayerPedId()))
 				SetCamFov(cam, binocularConfig.fov)
 				RenderScriptCams(true, false, 0, 1, 0)
 				PushScaleformMovieFunction(scaleform, "SET_CAM_LOGO")
 				PushScaleformMovieFunctionParameterInt(0)
 				PopScaleformMovieFunctionVoid()
 
-				while exports['pulsar-animations']:EmotesGet() == "binoculars" and LocalPlayer.state.loggedIn do
+				while plsr.Animations.Emotes:Get() == "binoculars" and plsr.State.flags.loggedIn do
 					local zoomvalue = (1.0 / (binocularConfig.fovMax - binocularConfig.fovMin))
 						* (binocularConfig.fov - binocularConfig.fovMin)
 
@@ -79,7 +79,7 @@ RegisterNetEvent("Animations:Client:Binoculars", function()
 				SetNightvision(false)
 				SetSeethrough(false)
 
-				exports['pulsar-hud']:Show()
+				plsr.Hud:Show()
 			end)
 		end
 	end
@@ -96,13 +96,13 @@ local camConfig = {
 camConfig.fov = (camConfig.fovMax + camConfig.fovMin) * 0.5
 
 RegisterNetEvent("Animations:Client:Camera", function()
-	if LocalPlayer.state.loggedIn then
-		local inAnim = exports['pulsar-animations']:EmotesGet()
+	if plsr.State.flags.loggedIn then
+		local inAnim = plsr.Animations.Emotes:Get()
 		if inAnim and inAnim == "camera_item" then
-			exports['pulsar-animations']:EmotesCancel()
-		elseif not inAnim and not IsPedInAnyVehicle(LocalPlayer.state.ped, true) then
-			exports['pulsar-animations']:EmotesPlay("camera_item", false, false, false)
-			exports['pulsar-hud']:Hide()
+			plsr.Animations.Emotes:Cancel()
+		elseif not inAnim and not IsPedInAnyVehicle(PlayerPedId(), true) then
+			plsr.Animations.Emotes:Play("camera_item", false, false, false)
+			plsr.Hud:Hide()
 
 			TriggerEvent("Animations:Client:UsingCamera", true)
 
@@ -114,8 +114,8 @@ RegisterNetEvent("Animations:Client:Camera", function()
 				camConfig.height = 1.0
 
 				local cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true)
-				AttachCamToEntity(cam, LocalPlayer.state.ped, 0.0, 1.0, 1.0, true)
-				SetCamRot(cam, 0.0, 0.0, GetEntityHeading(LocalPlayer.state.ped))
+				AttachCamToEntity(cam, PlayerPedId(), 0.0, 1.0, 1.0, true)
+				SetCamRot(cam, 0.0, 0.0, GetEntityHeading(PlayerPedId()))
 				SetCamFov(cam, camConfig.fov)
 				RenderScriptCams(true, false, 0, 1, 0)
 
@@ -124,7 +124,7 @@ RegisterNetEvent("Animations:Client:Camera", function()
 				while not HasScaleformMovieLoaded(scaleform) do
 					Wait(10)
 				end
-				local playerCoords = GetEntityCoords(LocalPlayer.state.ped)
+				local playerCoords = GetEntityCoords(PlayerPedId())
 				PushScaleformMovieFunction(scaleform, "SET_LOCATION")
 				PushScaleformMovieFunctionParameterString(GetLabelText(GetNameOfZone(playerCoords)))
 				PopScaleformMovieFunctionVoid()
@@ -148,7 +148,7 @@ RegisterNetEvent("Animations:Client:Camera", function()
 
 				local tick = 0
 
-				while exports['pulsar-animations']:EmotesGet() == "camera_item" and LocalPlayer.state.loggedIn do
+				while plsr.Animations.Emotes:Get() == "camera_item" and plsr.State.flags.loggedIn do
 					local zoomvalue = (1.0 / (camConfig.fovMax - camConfig.fovMin)) * (camConfig.fov - camConfig.fovMin)
 
 					HandleCameraPanning(cam, zoomvalue, camConfig)
@@ -179,8 +179,8 @@ RegisterNetEvent("Animations:Client:Camera", function()
 				SetNightvision(false)
 				SetSeethrough(false)
 
-				if LocalPlayer.state.loggedIn then
-					exports['pulsar-hud']:Show()
+				if plsr.State.flags.loggedIn then
+					plsr.Hud:Show()
 				end
 			end)
 		end
@@ -196,12 +196,12 @@ function HandleCameraPanning(cam, zoomvalue, config)
 		newX = math.max(math.min(20.0, rotation.x + rightAxisY * -1.0 * config.moveSpeed * (zoomvalue + 0.1)), -89.5)
 
 		SetCamRot(cam, newX, 0.0, newZ, 2)
-		SetEntityHeading(LocalPlayer.state.ped, newZ)
+		SetEntityHeading(PlayerPedId(), newZ)
 	end
 end
 
 function HandleCameraZooming(cam, config)
-	if not (IsPedSittingInAnyVehicle(LocalPlayer.state.ped)) then
+	if not (IsPedSittingInAnyVehicle(PlayerPedId())) then
 		if IsDisabledControlJustPressed(0, 241) then -- Scroll Up
 			config.fov = math.max(config.fov - config.zoomSpeed, config.fovMin)
 		elseif IsDisabledControlJustPressed(0, 242) then
@@ -234,13 +234,13 @@ function HandleCameraHeight(cam, config)
 		if config.height >= 1.0 then
 			config.height = 1.0
 		end
-		AttachCamToEntity(cam, LocalPlayer.state.ped, 0.0, 1.0, config.height, true)
+		AttachCamToEntity(cam, PlayerPedId(), 0.0, 1.0, config.height, true)
 	elseif IsControlJustPressed(0, 173) then
 		config.height -= 0.05
 		if config.height <= -0.5 then
 			config.height = -0.5
 		end
-		AttachCamToEntity(cam, LocalPlayer.state.ped, 0.0, 1.0, config.height, true)
+		AttachCamToEntity(cam, PlayerPedId(), 0.0, 1.0, config.height, true)
 	end
 end
 
@@ -267,9 +267,8 @@ local animStatePriority = {
 }
 
 function EnsureCharacterAnimStates()
-	local character = LocalPlayer.state.Character
-	if character then
-		local states = character:GetData("States") or {}
+	if plsr.State.flags.loggedIn then
+		local states = plsr.State.character.States or {}
 		local animStates = {}
 		for k, v in ipairs(states) do
 			if string.sub(v, 1, string.len("ANIM_")) == "ANIM_" then
@@ -285,29 +284,29 @@ function EnsureCharacterAnimStates()
 				return aPrio > bPrio
 			end)
 
-			exports['pulsar-animations']:EmotesPlay(animStates[1], false, false, true)
+			plsr.Animations.Emotes:Play(animStates[1], false, false, true)
 			_doingAnimState = animStates[1]
-		elseif _doingAnimState and _doingAnimState == exports['pulsar-animations']:EmotesGet() then
-			exports['pulsar-animations']:EmotesForceCancel()
+		elseif _doingAnimState and _doingAnimState == plsr.Animations.Emotes:Get() then
+			plsr.Animations.Emotes:ForceCancel()
 		end
 	end
 end
 
 RegisterNetEvent("Characters:Client:SetData", function()
 	Wait(1000)
-	if LocalPlayer.state.loggedIn then
+	if plsr.State.flags.loggedIn then
 		EnsureCharacterAnimStates()
 	end
 end)
 
 RegisterNetEvent("Animations:Client:DoPDCallEmote", function(emote)
-	if LocalPlayer.state.loggedIn then
-		exports['pulsar-animations']:EmotesPlay("phonecall", false, 10000, true)
+	if plsr.State.flags.loggedIn then
+		plsr.Animations.Emotes:Play("phonecall", false, 10000, true)
 	end
 end)
 
 RegisterNetEvent("Animations:Client:DiceRoll", function()
-	exports['pulsar-animations']:EmotesPlay("dice", true)
+	plsr.Animations.Emotes:Play("dice", true)
 
-	exports["pulsar-sounds"]:PlayDistance(3.0, "dice.ogg", 0.8)
+	plsr.Sounds.Play:Distance(3.0, "dice.ogg", 0.8)
 end)

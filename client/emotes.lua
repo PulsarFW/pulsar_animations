@@ -18,124 +18,121 @@ local IsInEmoteName = false
 
 local currentEmoteAllData = false
 
-exports("EmotesPlay", function(emote, fromUserInput, time, notCancellable, skipDisarm)
-    if IsInAnimation and fromUserInput and not IsAbleToCancel then
-        return
-    end
-
-    if fromUserInput and LocalPlayer.state.sitting then
-        return
-    end
-
-    if fromUserInput and (IsPedBeingStunned(LocalPlayer.state.ped) or IsPedRagdoll(LocalPlayer.state.ped) or IsPedFalling(LocalPlayer.state.ped)) then
-        return exports["pulsar-hud"]:Notification("error", 'Cannot Do Animation Now')
-    end
-
-    if fromUserInput and LocalPlayer.state.playingCasino then
-        return exports["pulsar-hud"]:Notification("error", 'Cannot Do Animation Now')
-    end
-
-    if IsInAnimation then
-        exports['pulsar-animations']:EmotesForceCancel()
-        Wait(250)
-    end
-
-    if emote ~= nil and type(emote) == 'string' then
-        local name = string.lower(emote)
-        local animInfo
-
-        if AnimData.Emotes[name] ~= nil then
-            animInfo = AnimData.Emotes[name]
-        elseif AnimData.Dances[name] ~= nil then
-            animInfo = AnimData.Dances[name]
-        elseif AnimData.PropEmotes[name] ~= nil then
-            animInfo = AnimData.PropEmotes[name]
-        elseif AnimData.DogEmotes[name] ~= nil then
-            animInfo = AnimData.DogEmotes[name]
-        else
-            exports["pulsar-hud"]:Notification("error", 'Invalid Emote')
+ANIMATIONS.Emotes = {
+    Play = function(self, emote, fromUserInput, time, notCancellable, skipDisarm)
+        if IsInAnimation and fromUserInput and not IsAbleToCancel then
+            return
         end
-        local animTime = (time ~= nil and tonumber(time) or nil)
-        local notCancellable = notCancellable ~= nil and notCancellable or false
-        if animInfo ~= nil then
-            DoAnEmote(animInfo, fromUserInput, animTime, notCancellable, emote, skipDisarm)
-        end
-    elseif emote ~= nil and type(emote) == 'table' then
-        local name = string.lower(emote.name)
-        local animInfo
 
-        if AnimData.Emotes[name] ~= nil then
-            animInfo = AnimData.Emotes[name]
-        elseif AnimData.Dances[name] ~= nil then
-            animInfo = AnimData.Dances[name]
-        elseif AnimData.PropEmotes[name] ~= nil then
-            animInfo = AnimData.PropEmotes[name]
-        elseif AnimData.DogEmotes[name] ~= nil then
-            animInfo = AnimData.DogEmotes[name]
-        else
-            exports["pulsar-hud"]:Notification("error", 'Invalid Emote')
+        if fromUserInput and plsr.State.flags.sitting then
+            return
         end
-        if emote.prop then
-            animInfo.AdditionalOptions.Prop = emote.prop
-        end
-        local animTime = (time ~= nil and tonumber(time) or nil)
-        local notCancellable = notCancellable ~= nil and notCancellable or false
-        if animInfo ~= nil then
-            DoAnEmote(animInfo, fromUserInput, animTime, notCancellable, emote, skipDisarm)
-        end
-    end
-end)
 
-exports("EmotesCancel", function()
-    if IsAbleToCancel then
+        if fromUserInput and (IsPedBeingStunned(PlayerPedId()) or IsPedRagdoll(PlayerPedId()) or IsPedFalling(PlayerPedId())) then
+            return plsr.Notification:Error('Cannot Do Animation Now')
+        end
+
+        if fromUserInput and plsr.State.flags.playingCasino then
+            return plsr.Notification:Error('Cannot Do Animation Now')
+        end
+
+        if IsInAnimation then
+            plsr.Animations.Emotes:ForceCancel()
+            Wait(250)
+        end
+
+        if emote ~= nil and type(emote) == 'string' then
+            local name = string.lower(emote)
+            local animInfo
+
+            if AnimData.Emotes[name] ~= nil then
+                animInfo = AnimData.Emotes[name]
+            elseif AnimData.Dances[name] ~= nil then
+                animInfo = AnimData.Dances[name]
+            elseif AnimData.PropEmotes[name] ~= nil then
+                animInfo = AnimData.PropEmotes[name]
+            elseif AnimData.DogEmotes[name] ~= nil then
+                animInfo = AnimData.DogEmotes[name]
+            else
+                plsr.Notification:Error('Invalid Emote')
+            end
+            local animTime = (time ~= nil and tonumber(time) or nil)
+            local notCancellable = notCancellable ~= nil and notCancellable or false
+            if animInfo ~= nil then
+                DoAnEmote(animInfo, fromUserInput, animTime, notCancellable, emote, skipDisarm)
+            end
+        elseif emote ~= nil and type(emote) == 'table' then
+            local name = string.lower(emote.name)
+            local animInfo
+
+            if AnimData.Emotes[name] ~= nil then
+                animInfo = AnimData.Emotes[name]
+            elseif AnimData.Dances[name] ~= nil then
+                animInfo = AnimData.Dances[name]
+            elseif AnimData.PropEmotes[name] ~= nil then
+                animInfo = AnimData.PropEmotes[name]
+            elseif AnimData.DogEmotes[name] ~= nil then
+                animInfo = AnimData.DogEmotes[name]
+            else
+                plsr.Notification:Error('Invalid Emote')
+            end
+            if emote.prop then
+                animInfo.AdditionalOptions.Prop = emote.prop
+            end
+            local animTime = (time ~= nil and tonumber(time) or nil)
+            local notCancellable = notCancellable ~= nil and notCancellable or false
+            if animInfo ~= nil then
+                DoAnEmote(animInfo, fromUserInput, animTime, notCancellable, emote, skipDisarm)
+            end
+        end
+    end,
+    Cancel = function(self)
+        if IsAbleToCancel then
+            CancelEmote()
+        end
+    end,
+    ForceCancel = function(self)
+        -- Force Cancel Regardless of If They Can
         CancelEmote()
-    end
-end)
+    end,
+    Get = function(self)
+        if IsInAnimation then
+            return IsInEmoteName
+        end
+        return false
+    end,
+    WakeUp = function(self, pos)
+        LoadAnim("switch@franklin@bed")
 
-exports("EmotesForceCancel", function()
-    -- Force Cancel Regardless of If They Can
-    CancelEmote()
-end)
+        local ped = PlayerPedId()
+        FreezeEntityPosition(ped, true)
 
-exports("EmotesGet", function()
-    if IsInAnimation then
-        return IsInEmoteName
-    end
-    return false
-end)
+        if pos then
+            SetEntityCoords(ped, pos.x + 0.0, pos.y + 0.0, pos.z + 0.0)
+            SetEntityHeading(ped, pos.h + 0.0)
+        end
 
-exports("EmotesWakeUp", function(pos)
-    LoadAnim("switch@franklin@bed")
+        Wait(500)
 
-    local ped = PlayerPedId()
-    FreezeEntityPosition(ped, true)
+        TaskPlayAnim(ped, "switch@franklin@bed", "sleep_getup_rubeyes", 8.0, 8.0, -1, 8, 0, false, false, false)
 
-    if pos then
-        SetEntityCoords(ped, pos.x + 0.0, pos.y + 0.0, pos.z + 0.0)
-        SetEntityHeading(ped, pos.h + 0.0)
-    end
-
-    Wait(500)
-
-    TaskPlayAnim(ped, "switch@franklin@bed", "sleep_getup_rubeyes", 8.0, 8.0, -1, 8, 0, false, false, false)
-
-    Wait(5000)
-    FreezeEntityPosition(ped, false)
-end)
+        Wait(5000)
+        FreezeEntityPosition(ped, false)
+    end,
+}
 
 function AddPropToPlayer(prop1, bone, off1, off2, off3, rot1, rot2, rot3)
-    local x, y, z = table.unpack(GetEntityCoords(LocalPlayer.state.ped))
+    local x, y, z = table.unpack(GetEntityCoords(PlayerPedId()))
 
     if not HasModelLoaded(prop1) then
         LoadPropDict(prop1)
     end
 
     prop = CreateObject(GetHashKey(prop1), x, y, z + 0.2, true, true, true)
-    AttachEntityToEntity(prop, LocalPlayer.state.ped, GetPedBoneIndex(LocalPlayer.state.ped, bone), off1, off2, off3,
-        rot1, rot2, rot3, true, true, false, true, 1, true)
+    AttachEntityToEntity(prop, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), bone), off1, off2, off3, rot1, rot2, rot3, true, true, false, true, 1, true)
     table.insert(PlayerProps, prop)
     SetEntityCollision(prop, false, true)
-    SetEntityCompletelyDisableCollision(prop, false, true)
+	SetEntityCompletelyDisableCollision(prop, false, true)
     PlayerHasProp = true
     SetModelAsNoLongerNeeded(prop1)
     return prop
@@ -149,17 +146,18 @@ function DestroyAllProps()
 end
 
 function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, skipDisarm)
-    if emoteData.AdditionalOptions.BlockVehicle and IsPedInAnyVehicle(LocalPlayer.state.ped, true) then
+
+    if emoteData.AdditionalOptions.BlockVehicle and IsPedInAnyVehicle(PlayerPedId(), true) then
         return
     end
 
-    if emoteData.AdditionalOptions.AvailableToK9 and not LocalPlayer.state.isK9Ped then
+    if emoteData.AdditionalOptions.AvailableToK9 and not plsr.State.flags.isK9Ped then
         return
     end
-
-    if Config.EnableEmoteCD and fromUserInput and _AnimCounter >= Config.AnimMaxEmotesCooldown then
-        return exports["pulsar-hud"]:Notification("error", 'Stop spamming emotes you pepega.')
-    end
+	
+	if Config.EnableEmoteCD and fromUserInput and _AnimCounter >= Config.AnimMaxEmotesCooldown then
+		return plsr.Notification:Error('Stop spamming emotes you pepega.')
+	end
 
     currentEmoteAllData = {
         emoteData = emoteData,
@@ -170,22 +168,22 @@ function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, 
         skipDisarm = skipDisarm,
     }
 
-    if (fromUserInput and emoteData.AdditionalOptions.AvailableToChar) or (not fromUserInput) or LocalPlayer.state.isAdmin then
+    if (fromUserInput and emoteData.AdditionalOptions.AvailableToChar) or (not fromUserInput) or plsr.State.flags.isAdmin then
         IsAbleToCancel = not notCancellable
 
-        if LocalPlayer.state.sitting then
-            StandUp(true)
+        if plsr.State.flags.sitting then
+            StandTheFuckUp(true)
         end
 
         if not skipDisarm then
-            TriggerEvent('ox_inventory:disarm', LocalPlayer.state.ped, true)
+            plsr.Weapons:UnequipIfEquippedNoAnim()
         end
 
         ChosenDict, ChosenAnimation = emoteData.AnDictionary, emoteData.AnAnim
         AnimationDuration = -1
-        if fromUserInput and Config.EnableEmoteCD then
-            _AnimCounter = _AnimCounter + 1
-        end
+		if fromUserInput and Config.EnableEmoteCD then
+			_AnimCounter = _AnimCounter + 1
+		end
 
         if PlayerHasProp then
             DestroyAllProps()
@@ -193,22 +191,21 @@ function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, 
 
         if not GLOBAL_VEH then
             if ChosenDict == "MaleScenario" then
-                ClearPedTasks(LocalPlayer.state.ped)
-                TaskStartScenarioInPlace(LocalPlayer.state.ped, ChosenAnimation, 0, true)
+                ClearPedTasks(PlayerPedId())
+                TaskStartScenarioInPlace(PlayerPedId(), ChosenAnimation, 0, true)
                 IsInAnimation = true
                 IsInEmoteName = emoteName
                 return
             elseif ChosenDict == "ScenarioObject" then
-                BehindPlayer = GetOffsetFromEntityInWorldCoords(LocalPlayer.state.ped, 0.0, 0 - 0.5, -0.5);
-                ClearPedTasks(LocalPlayer.state.ped)
-                TaskStartScenarioAtPosition(LocalPlayer.state.ped, ChosenAnimation, BehindPlayer['x'], BehindPlayer['y'],
-                    BehindPlayer['z'], GetEntityHeading(LocalPlayer.state.ped), 0, 1, false)
+                BehindPlayer = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0 - 0.5, -0.5);
+                ClearPedTasks(PlayerPedId())
+                TaskStartScenarioAtPosition(PlayerPedId(), ChosenAnimation, BehindPlayer['x'], BehindPlayer['y'], BehindPlayer['z'], GetEntityHeading(PlayerPedId()), 0, 1, false)
                 IsInAnimation = true
                 IsInEmoteName = emoteName
                 return
             elseif ChosenDict == "Scenario" then
-                ClearPedTasks(LocalPlayer.state.ped)
-                TaskStartScenarioInPlace(LocalPlayer.state.ped, ChosenAnimation, 0, true)
+                ClearPedTasks(PlayerPedId())
+                TaskStartScenarioInPlace(PlayerPedId(), ChosenAnimation, 0, true)
                 IsInAnimation = true
                 IsInEmoteName = emoteName
                 return
@@ -255,18 +252,18 @@ function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, 
                 if emoteData.AdditionalOptions.PtfxAlways then
                     CreateThread(function()
                         Wait(500)
-                        LocalPlayer.state:set('animPtfx', emoteName, true)
+                        plsr.State.flags.animPtfx = emoteName
                     end)
                 else
                     PtfxWait = emoteData.AdditionalOptions.PtfxWait
                     PtfxPrompt = true
-                    exports["pulsar-hud"]:Notification("info", emoteData.AdditionalOptions.PtfxInfo, 5000)
+                    plsr.Notification:Info(emoteData.AdditionalOptions.PtfxInfo, 5000)
                     CreateThread(function()
                         while PtfxPrompt do
                             if IsControlPressed(0, 47) then
-                                LocalPlayer.state:set('animPtfx', emoteName, true)
+                                plsr.State.flags.animPtfx = emoteName
                                 Wait(PtfxWait)
-                                LocalPlayer.state:set('animPtfx', false, true)
+                                plsr.State.flags.animPtfx = false
                             end
                             Wait(5)
                         end
@@ -277,37 +274,32 @@ function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, 
             end
         end
 
-        TaskPlayAnim(LocalPlayer.state.ped, ChosenDict, ChosenAnimation, BlendInOut, BlendInOut, AnimationDuration,
-            MovementType, 0, false, false, false)
+        TaskPlayAnim(PlayerPedId(), ChosenDict, ChosenAnimation, BlendInOut, BlendInOut, AnimationDuration, MovementType, 0, false, false, false)
         IsInAnimation = true
         MostRecentDict = ChosenDict
         MostRecentAnimation = ChosenAnimation
         IsInEmoteName = emoteName
 
-        LocalPlayer.state:set('anim', emoteName, true)
+        plsr.State:SetPublicClientFlag('anim', emoteName)
 
         if emoteData.AdditionalOptions then
             if emoteData.AdditionalOptions.Prop then
                 PropName = emoteData.AdditionalOptions.Prop
                 PropBone = emoteData.AdditionalOptions.PropBone
-                PropPl1, PropPl2, PropPl3, PropPl4, PropPl5, PropPl6 = table.unpack(emoteData.AdditionalOptions
-                    .PropPlacement)
+                PropPl1, PropPl2, PropPl3, PropPl4, PropPl5, PropPl6 = table.unpack(emoteData.AdditionalOptions.PropPlacement)
                 if emoteData.AdditionalOptions.SecondProp then
                     SecondPropName = emoteData.AdditionalOptions.SecondProp
                     SecondPropBone = emoteData.AdditionalOptions.SecondPropBone
-                    SecondPropPl1, SecondPropPl2, SecondPropPl3, SecondPropPl4, SecondPropPl5, SecondPropPl6 = table
-                        .unpack(emoteData.AdditionalOptions.SecondPropPlacement)
+                    SecondPropPl1, SecondPropPl2, SecondPropPl3, SecondPropPl4, SecondPropPl5, SecondPropPl6 = table.unpack(emoteData.AdditionalOptions.SecondPropPlacement)
                     SecondPropEmote = true
                 else
                     SecondPropEmote = false
                 end
                 Wait(AttachWait)
-                local stupidProp1 = AddPropToPlayer(PropName, PropBone, PropPl1, PropPl2, PropPl3, PropPl4, PropPl5,
-                    PropPl6)
-                LocalPlayer.state:set('animProp1', ObjToNet(stupidProp1), true)
+                local stupidProp1 = AddPropToPlayer(PropName, PropBone, PropPl1, PropPl2, PropPl3, PropPl4, PropPl5, PropPl6)
+                plsr.State.flags.animProp1 = ObjToNet(stupidProp1)
                 if SecondPropEmote then
-                    local stupidProp2 = AddPropToPlayer(SecondPropName, SecondPropBone, SecondPropPl1, SecondPropPl2,
-                        SecondPropPl3, SecondPropPl4, SecondPropPl5, SecondPropPl6)
+                    local stupidProp2 = AddPropToPlayer(SecondPropName, SecondPropBone, SecondPropPl1, SecondPropPl2, SecondPropPl3, SecondPropPl4, SecondPropPl5, SecondPropPl6)
                 end
             end
         end
@@ -325,21 +317,20 @@ function DoAnEmote(emoteData, fromUserInput, length, notCancellable, emoteName, 
         end
 
         if not isLooped or forcedLength then
-            SetTimeout(animLength, function()
-                exports['pulsar-animations']:EmotesForceCancel()
+            Citizen.SetTimeout(animLength, function()
+                plsr.Animations.Emotes:ForceCancel()
                 IsAbleToCancel = true
             end)
         end
 
         CreateThread(function()
-            while LocalPlayer.state.loggedIn and IsInAnimation and ChosenDict and ChosenAnimation do
-                if not IsEntityPlayingAnim(LocalPlayer.state.ped, ChosenDict, ChosenAnimation, 3) then
-                    TaskPlayAnim(LocalPlayer.state.ped, ChosenDict, ChosenAnimation, BlendInOut, BlendInOut,
-                        AnimationDuration, MovementType, 0, false, false, false)
+            while plsr.State.flags.loggedIn and IsInAnimation and ChosenDict and ChosenAnimation do
+                if not IsEntityPlayingAnim(PlayerPedId(), ChosenDict, ChosenAnimation, 3) then
+                    TaskPlayAnim(PlayerPedId(), ChosenDict, ChosenAnimation, BlendInOut, BlendInOut, AnimationDuration, MovementType, 0, false, false, false)
                 end
 
-                if emoteData and emoteData.AdditionalOptions and emoteData.AdditionalOptions.BlockVehicle and IsPedInAnyVehicle(LocalPlayer.state.ped, true) then
-                    exports['pulsar-animations']:EmotesForceCancel()
+                if emoteData?.AdditionalOptions?.BlockVehicle and IsPedInAnyVehicle(PlayerPedId(), true) then
+                    plsr.Animations.Emotes:ForceCancel()
                 end
 
                 Wait(250)
@@ -362,36 +353,35 @@ function CancelEmote()
     end
 
     if ChosenDict == "MaleScenario" or ChosenDict == "ScenarioObject" or ChosenDict == "Scenario" then
-        ClearPedTasksImmediately(LocalPlayer.state.ped)
+        ClearPedTasksImmediately(PlayerPedId())
     end
     PtfxPrompt = false
     PtfxStop()
-    ClearPedTasks(LocalPlayer.state.ped)
+    ClearPedTasks(PlayerPedId())
     DestroyAllProps()
     RemoveAnimDict(ChosenDict)
     IsInAnimation = false
 
     _doingStateAnimation = false
 
-    LocalPlayer.state:set('anim', false, true)
-    if LocalPlayer.state.animProp1 then
-        LocalPlayer.state:set('animProp1', false, true)
+    plsr.State:SetPublicClientFlag('anim', false)
+    if plsr.State.flags.animProp1 then
+        plsr.State.flags.animProp1 = false
     end
-    if LocalPlayer.state.animPtfx then
-        LocalPlayer.state:set('animPtfx', false, true)
+    if plsr.State.flags.animPtfx then
+        plsr.State.flags.animPtfx = false
     end
 
-    local emoteOptions = currentEmoteAllData and currentEmoteAllData.emoteData and
-        currentEmoteAllData.emoteData.AdditionalOptions
-    if emoteOptions and emoteOptions.Prop then
-        if emoteOptions.SecondProp then
-            TriggerServerEvent('Animations:Server:ClearAttached', {
-                [GetHashKey(emoteOptions.Prop)] = true,
-                [GetHashKey(emoteOptions.SecondProp)] = true
+    local emoteOptions = currentEmoteAllData?.emoteData?.AdditionalOptions
+    if emoteOptions?.Prop then
+        if emoteOptions?.SecondProp then
+            TriggerServerEvent('Animations:Server:ClearAttached', { 
+                [GetHashKey(emoteOptions?.Prop)] = true,
+                [GetHashKey(emoteOptions?.SecondProp)] = true
             })
         else
-            TriggerServerEvent('Animations:Server:ClearAttached', {
-                [GetHashKey(emoteOptions.Prop)] = true
+            TriggerServerEvent('Animations:Server:ClearAttached', { 
+                [GetHashKey(emoteOptions?.Prop)] = true
             })
         end
     end
@@ -399,13 +389,12 @@ end
 
 function PtfxStart()
     if PtfxNoProp then
-        PtfxAt = LocalPlayer.state.ped
+        PtfxAt = PlayerPedId()
     else
         PtfxAt = prop
     end
     UseParticleFxAssetNextCall(PtfxAsset)
-    Ptfx = StartNetworkedParticleFxLoopedOnEntityBone(PtfxName, PtfxAt, Ptfx1, Ptfx2, Ptfx3, Ptfx4, Ptfx5, Ptfx6,
-        GetEntityBoneIndexByName(PtfxName, "VFX"), 1065353216, 0, 0, 0, 1065353216, 1065353216, 1065353216, 0)
+    Ptfx = StartNetworkedParticleFxLoopedOnEntityBone(PtfxName, PtfxAt, Ptfx1, Ptfx2, Ptfx3, Ptfx4, Ptfx5, Ptfx6, GetEntityBoneIndexByName(PtfxName, "VFX"), 1065353216, 0, 0, 0, 1065353216, 1065353216, 1065353216, 0)
     SetParticleFxLoopedColour(Ptfx, 1.0, 1.0, 1.0)
     table.insert(PlayerParticles, Ptfx)
 end
@@ -419,30 +408,30 @@ end
 
 RegisterNetEvent('Animations:Client:CharacterDoAnEmote')
 AddEventHandler('Animations:Client:CharacterDoAnEmote', function(emote)
-    if LocalPlayer.state.loggedIn then
-        exports['pulsar-animations']:EmotesPlay(emote, true)
+    if plsr.State.flags.loggedIn then
+        plsr.Animations.Emotes:Play(emote, true)
     end
 end)
 
 RegisterNetEvent('Animations:Client:CharacterCancelEmote')
 AddEventHandler('Animations:Client:CharacterCancelEmote', function()
-    if LocalPlayer.state.loggedIn and not LocalPlayer.state.doingAction then
-        exports['pulsar-animations']:EmotesCancel()
+    if plsr.State.flags.loggedIn and not plsr.State.flags.doingAction then
+        plsr.Animations.Emotes:Cancel()
     end
 end)
 
 AddEventHandler('Ped:Client:Died', function()
-    exports['pulsar-animations']:EmotesForceCancel()
+    plsr.Animations.Emotes:ForceCancel()
 end)
 
 CreateThread(function()
-    while Config.EnableEmoteCD do
-        if _AnimCounter >= Config.AnimMaxEmotesCooldown then
-            _AnimCounter = _AnimCounter - 1
-            if _AnimCounter < 0 then
-                _AnimCounter = 0
-            end
-        end
-        Wait(Config.AnimCooldown)
-    end
+	while Config.EnableEmoteCD do
+		if _AnimCounter >= Config.AnimMaxEmotesCooldown then
+			_AnimCounter = _AnimCounter - 1
+			if _AnimCounter < 0 then
+				_AnimCounter = 0
+			end
+		end
+		Wait(Config.AnimCooldown)
+	end
 end)

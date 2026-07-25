@@ -1,18 +1,19 @@
-exports("EmoteBindsUpdate", function(newBinds)
-	exports["pulsar-core"]:ServerCallback("Animations:UpdateEmoteBinds", newBinds, function(success, data)
-		if success then
-			emoteBinds = data
-			exports["pulsar-hud"]:Notification("success", "Successfully Updated and Saved Keybinds", 5000)
+ANIMATIONS.EmoteBinds = {
+	Update = function(self, newBinds)
+		plsr.Callbacks:ServerCallback("Animations:UpdateEmoteBinds", newBinds, function(success, data)
+			if success then
+				emoteBinds = data
+				plsr.Notification:Success("Successfully Updated and Saved Keybinds", 5000)
+			end
+		end)
+	end,
+	Use = function(self, bindId)
+		local bindEmote = emoteBinds[tostring(bindId)]
+		if bindEmote and type(bindEmote) == "string" then
+			plsr.Animations.Emotes:Play(bindEmote, true)
 		end
-	end)
-end)
-
-exports("EmoteBindsUse", function(bindId)
-	local bindEmote = emoteBinds[tostring(bindId)]
-	if bindEmote and type(bindEmote) == "string" then
-		exports['pulsar-animations']:EmotesPlay(bindEmote, true)
-	end
-end)
+	end,
+}
 
 RegisterNetEvent("Animations:Client:OpenEmoteBinds", function()
 	local bindInputs = {}
@@ -27,14 +28,14 @@ RegisterNetEvent("Animations:Client:OpenEmoteBinds", function()
 				label = string.format(
 					"Emote Bind #%s - Currently Assigned to %s",
 					bindNum,
-					exports["pulsar-kbs"]:GetKey("emote_bind_" .. bindNum)
+					plsr.Keybinds:GetKey("emote_bind_" .. bindNum)
 				),
 				defaultValue = emoteBinds[tostring(bindNum)] or "",
 			},
 		})
 	end
 
-	exports['pulsar-hud']:InputShow("Emote Binds", "Input Label", bindInputs, "Animations:Client:SaveEmoteBinds", {})
+	plsr.Input:Show("Emote Binds", "Input Label", bindInputs, "Animations:Client:SaveEmoteBinds", {})
 end)
 
 AddEventHandler("Animations:Client:SaveEmoteBinds", function(values)
@@ -47,5 +48,5 @@ AddEventHandler("Animations:Client:SaveEmoteBinds", function(values)
 		end
 	end
 
-	exports['pulsar-animations']:EmoteBindsUpdate(updatedBinds)
+	plsr.Animations.EmoteBinds:Update(updatedBinds)
 end)

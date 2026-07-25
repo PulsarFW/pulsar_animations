@@ -18,23 +18,19 @@ RegisterNetEvent("Animations:Client:Selfie", function(toggle)
 end)
 
 function StartSelfieMode()
-	if not _selfie and not LocalPlayer.state.doingAction then
+	if not _selfie and not plsr.State.flags.doingAction then
 		_selfie = true
-		exports["pulsar-hud"]:Notification(
-			"info",
-			string.format("Camera - Press %s to take a Selfie", exports["pulsar-kbs"]:GetKey("primary_action"))
-			.. "<br/>"
-			.. string.format("Camera - Press %s to flip the camera",
-				exports["pulsar-kbs"]:GetKey("secondary_action"))
-			.. "<br/>"
-			.. string.format("Camera - Press %s to cancel", exports["pulsar-kbs"]:GetKey("emote_cancel")),
-			-1,
-			"camera",
-			nil,
-			"camera-info-notif"
+		plsr.Notification.Persistent:Info(
+			"camera-info-notif",
+			string.format("Camera - Press %s to take a Selfie", plsr.Keybinds:GetKey("primary_action"))
+				.. "<br/>"
+				.. string.format("Camera - Press %s to flip the camera", plsr.Keybinds:GetKey("secondary_action"))
+				.. "<br/>"
+				.. string.format("Camera - Press %s to cancel", plsr.Keybinds:GetKey("emote_cancel")),
+			"camera"
 		)
-		exports.ox_inventory:Disable()
-		exports['pulsar-hud']:Hide()
+		plsr.Inventory:Disable()
+		plsr.Hud:Hide()
 		DestroyMobilePhone()
 		Wait(10)
 		CreateMobilePhone(0)
@@ -45,13 +41,13 @@ end
 
 function StopSelfieMode()
 	if _selfie then
-		exports["pulsar-hud"]:Notification("remove", nil, nil, nil, nil, "camera-info-notif")
+		plsr.Notification.Persistent:Remove("camera-info-notif")
 		DestroyMobilePhone()
 		Wait(10)
 		CellCamDisableThisFrame(false)
 		CellCamActivate(false, false)
-		exports.ox_inventory:Enable()
-		exports['pulsar-hud']:Show()
+		plsr.Inventory:Enable()
+		plsr.Hud:Show()
 		_selfie = false
 		_frontie = true
 	end
@@ -74,9 +70,9 @@ AddEventHandler("Keybinds:Client:KeyUp:secondary_action", function()
 		_frontie = not _frontie
 		CellFrontCamActivate(_frontie)
 		-- if _frontie == false then
-		-- 	exports['pulsar-animations']:EmotesPlay("filmshocking", false, false, false)
+		-- 	plsr.Animations.Emotes:Play("filmshocking", false, false, false)
 		-- else
-		-- 	exports['pulsar-animations']:EmotesForceCancel()
+		-- 	plsr.Animations.Emotes:ForceCancel()
 		-- end
 	end
 end)

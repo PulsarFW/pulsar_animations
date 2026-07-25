@@ -6,12 +6,18 @@
 
 # PULSAR-ANIMATIONS
 
-### Emotes, shared animations, prop handling, and ped features
+### Emotes, shared/synced animations, ped props (chairs, selfie mode, pointing), and PTFX sync
 
 <br/>
 
 ![Lua](https://img.shields.io/badge/Lua_5.4-2C2D72?style=flat-square&logo=lua&logoColor=white)
 ![FiveM](https://img.shields.io/badge/FiveM-F40552?style=flat-square)
+
+<br/>
+
+<sub>Enjoy the framework? A coffee helps keep active development, hardening, and support going.</sub>
+
+<a href="https://buymeacoffee.com/pulsarframework"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 180px !important;" /></a>
 
 <br/>
 
@@ -23,15 +29,14 @@
 
 ## Overview
 
-Full animation and emote system for Pulsar Framework. Covers emote menus, keybindings, shared/synced emotes, prop attachment, ped features, selfie mode, chair sitting, pointing, and PTFX sync. Animation data and menu structure are fully configurable via the config files.
+Registers `plsr.Animations` — the emote menu, shared/synced emotes, chairs, pointing, selfie mode, and effect sync across clients. Item-triggered animations (drinking, smoking, etc) route through here too.
 
 ---
 
 ## Dependencies
 
-- `pulsar-core` — framework core
-- `ox_lib` — keybinds, menu
-- `ox_inventory` — item-triggered animations
+- `pulsar_core` — framework core
+- `pulsar_pwnzor` — anti-cheat check loaded alongside every resource
 
 ---
 

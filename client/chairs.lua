@@ -5,55 +5,53 @@ function RegisterChairTargets()
 	for k, v in ipairs(_sittableChairs) do
 		v.id = k
 		if v.prop then
-			exports.ox_target:addModel(v.prop, {
+			plsr.Targeting:AddObject(v.prop, "chair", {
 				{
-					name = "sit_chair",
-					label = "Sit",
-					icon = "fas fa-chair",
-					onSelect = function()
-						TriggerEvent("Animations:Client:Chair", v)
-					end,
-					distance = 2.0,
+					text = "Sit",
+					icon = "chair",
+					event = "Animations:Client:Chair",
+					data = v,
+					minDist = 2.0,
 				},
-			})
+			}, 1.8)
 		elseif v.polyzone then
-			exports.ox_target:addBoxZone({
-				name = string.format("chair-%s", v.id),
-				coords = v.polyzone.center,
-				size = vec3(v.polyzone.width, v.polyzone.length,
-					math.abs(v.polyzone.options.maxZ - v.polyzone.options.minZ)),
-				rotation = v.polyzone.options.heading or 0,
-				debug = v.polyzone.options.debugPoly or false,
-				options = {
+			plsr.Targeting.Zones:AddBox(
+				string.format("chair-%s", v.id),
+				"chair",
+				v.polyzone.center,
+				v.polyzone.length,
+				v.polyzone.width,
+				v.polyzone.options,
+				{
 					{
-						name = "sit_chair_zone",
-						label = "Sit",
-						icon = "fas fa-chair",
-						onSelect = function()
-							TriggerEvent("Animations:Client:Chair", v)
-						end,
-						distance = 2.0,
+						text = "Sit",
+						icon = "chair",
+						event = "Animations:Client:Chair",
+						data = v,
+						minDist = 2.0,
 					},
 				},
-			})
+				2.0,
+				true
+			)
 		end
 	end
 
-	exports['pulsar-hud']:InteractionRegisterMenu("chairs-stand-up", "Stand Up", "chair", function(data)
-		exports['pulsar-hud']:InteractionHide()
-		StandUp()
+	plsr.Interaction:RegisterMenu("chairs-stand-up", "Stand Up", "chair", function(data)
+		plsr.Interaction:Hide()
+		StandTheFuckUp()
 	end, function()
 		return isSitting
 	end)
 end
 
-AddEventHandler("Animations:Client:Chair", function(response)
-	if not isSitting and not IsInEmoteName and not LocalPlayer.state.myEscorter then
-		enterChairPosition = GetEntityCoords(LocalPlayer.state.ped)
+AddEventHandler("Animations:Client:Chair", function(entityData, data)
+	if not isSitting and not IsInEmoteName and not plsr.State.flags.myEscorter then
+		enterChairPosition = GetEntityCoords(PlayerPedId())
 
-		local positioning
-		local heading = 0.0
-		local data = response
+		local positioning =
+			GetOffsetFromEntityInWorldCoords(entityData.entity, data.xOff + 0.0, data.yOff + 0.0, data.zOff + 1.0)
+		local heading = GetEntityHeading(entityData.entity) or 0.0
 
 		if data.polyzone then
 			positioning = vector3(
@@ -62,78 +60,50 @@ AddEventHandler("Animations:Client:Chair", function(response)
 				data.polyzone.center.z + data.zOff
 			)
 			heading = data.polyzone.options.heading or 0.0
+		end
+
+		if data.hOff then
+			heading += data.hOff
 		else
-			if response.entity and response.entity ~= 0 then
-				positioning = GetOffsetFromEntityInWorldCoords(response.entity, data.xOff + 0.0, data.yOff + 0.0,
-					data.zOff + 1.0)
-				heading = GetEntityHeading(response.entity) or 0.0
-			else
-				local playerCoords = GetEntityCoords(LocalPlayer.state.ped)
-				local nearestEntity = nil
-				local nearestDistance = math.huge
-
-				local objects = GetGamePool('CObject')
-				for _, obj in ipairs(objects) do
-					if GetEntityModel(obj) == data.prop then
-						local objCoords = GetEntityCoords(obj)
-						local distance = #(playerCoords - objCoords)
-						if distance < nearestDistance and distance < 3.0 then
-							nearestDistance = distance
-							nearestEntity = obj
-						end
-					end
-				end
-
-				if nearestEntity then
-					positioning = GetOffsetFromEntityInWorldCoords(nearestEntity, data.xOff + 0.0, data.yOff + 0.0,
-						data.zOff + 1.0)
-					heading = GetEntityHeading(nearestEntity) or 0.0
-				end
-			end
+			heading += 180.0
 		end
 
 		if positioning then
-			if data.hOff then
-				heading = heading + data.hOff
-			else
-				heading = heading + 180.0
-			end
-
 			TaskStartScenarioAtPosition(
-				LocalPlayer.state.ped,
+				PlayerPedId(),
 				"PROP_HUMAN_SEAT_CHAIR_MP_PLAYER",
 				positioning,
-				heading,
+				heading + 0.0,
 				0,
 				true,
 				true
 			)
 			isSitting = true
 
-			LocalPlayer.state:set("sitting", true, true)
+			plsr.State.flags.sitting = true
 		end
 	end
 end)
 
-function StandUp(forced, cry)
+function StandTheFuckUp(forced, cry)
 	if isSitting then
-		ClearPedTasks(LocalPlayer.state.ped)
+		ClearPedTasks(PlayerPedId())
 		isSitting = false
 
-		LocalPlayer.state:set("sitting", false, true)
+		plsr.State.flags.sitting = false
 
 		if not forced then
 			Wait(1000)
 		end
 
-		if not cry and #(GetEntityCoords(LocalPlayer.state.ped) - enterChairPosition) <= 5.0 then
-			SetEntityCoords(LocalPlayer.state.ped, enterChairPosition)
+		if not cry and #(GetEntityCoords(PlayerPedId()) - enterChairPosition) <= 5.0 then
+			SetEntityCoords(PlayerPedId(), enterChairPosition)
 		end
 	end
 end
 
 RegisterNetEvent("Animations:Client:StandUp", function(forced, cry)
-	StandUp(forced, cry)
+	StandTheFuckUp(forced, cry)
 end)
 
 _sittableChairs = {
