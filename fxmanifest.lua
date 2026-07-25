@@ -1,5 +1,5 @@
 fx_version 'cerulean'
-games({ "gta5" })
+games { 'gta5' }
 
 name 'Pulsar Animations'
 description 'Emotes, shared/synced animations, ped props, and PTFX sync'
@@ -12,26 +12,26 @@ shared_script '@pulsar_core/core/sh_pulsar.lua'
 client_script '@pulsar_pwnzor/client/check.lua'
 
 client_scripts({
-	"shared/**/*.lua",
-	"config/*.lua",
-	"client/utils.lua",
-	"client/main.lua",
-	"client/menu.lua",
-	"client/bindings.lua",
-	"client/emotes.lua",
-	"client/ptfxsync.lua",
-	"client/pedfeatures.lua",
-	"client/sharedemotes.lua",
-	"client/pointing.lua",
-	"client/items.lua",
-	"client/chairs.lua",
-	"client/selfie.lua",
+	'shared/**/*.lua',
+	'config/*.lua',
+	'client/utils.lua',
+	'client/main.lua',
+	'client/menu.lua',
+	'client/bindings.lua',
+	'client/emotes.lua',
+	'client/ptfxsync.lua',
+	'client/pedfeatures.lua',
+	'client/sharedemotes.lua',
+	'client/pointing.lua',
+	'client/items.lua',
+	'client/chairs.lua',
+	'client/selfie.lua',
 })
 
 server_scripts({
-	"shared/**/*.lua",
-	"config/*.lua",
-	"server/*.lua",
+	'shared/**/*.lua',
+	'config/*.lua',
+	'server/*.lua',
 })
 
 lua54 'yes'
