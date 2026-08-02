@@ -19,7 +19,11 @@ end
 function LoadAnim(dict)
     while not HasAnimDictLoaded(dict) do
         RequestAnimDict(dict)
-        Wait(10)
+        Wait(100)
+    end
+
+    if not HasAnimDictLoaded(dict) then
+        plsr.Logger:Warn("Animations", ("LoadAnim gave up waiting on dict '%s' after 3s - invalid or unstreamable dict name"):format(tostring(dict)), { console = true })
     end
 end
 

@@ -122,3 +122,41 @@ ANIMATIONS.PedFeatures = {
         end
     end,
 }
+
+-- for arbitrary (non-player) ped entities, e.g. character-select preview peds - reuses the same
+-- AnimData catalog as ANIMATIONS.Emotes but skips all the player-only state (props, ptfx, cancel binds)
+ANIMATIONS.Ped = {
+    PlayEmote = function(self, ped, emoteName, looped)
+        if not DoesEntityExist(ped) then
+            return
+        end
+
+        local name = string.lower(emoteName)
+        local animInfo = AnimData.Emotes[name] or AnimData.Dances[name]
+        if not animInfo then
+            return
+        end
+
+        local dict, anim = animInfo.AnDictionary, animInfo.AnAnim
+
+        if dict == "MaleScenario" or dict == "Scenario" then
+            ClearPedTasks(ped)
+            TaskStartScenarioInPlace(ped, anim, 0, true)
+            return
+        elseif dict == "ScenarioObject" then
+            local offset = GetOffsetFromEntityInWorldCoords(ped, 0.0, -0.5, -0.5)
+            ClearPedTasks(ped)
+            TaskStartScenarioAtPosition(ped, anim, offset.x, offset.y, offset.z, GetEntityHeading(ped), 0, 1, false)
+            return
+        end
+
+        LoadAnim(dict)
+        local flag = (looped == nil or looped) and 1 or 0
+        TaskPlayAnim(ped, dict, anim, 8.0, -8.0, -1, flag, 0, false, false, false)
+    end,
+    Stop = function(self, ped)
+        if DoesEntityExist(ped) then
+            ClearPedTasksImmediately(ped)
+        end
+    end,
+}
